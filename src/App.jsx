@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import approvedBags from "./assets/images/approved_bags.png";
 import prohibitedItems from "./assets/images/prohibited_bags.png";
 import stadiumMap from "./assets/images/bc_map.png";
 import parking from "./assets/images/parking.png";
+import gettingThere from "./assets/images/TS_Walking-Map.jpg";
+import entryGate from "./assets/images/entry_gate.jpg";
 import "./App.css";
 
 const bcPlaceInfo = [
@@ -17,6 +19,7 @@ const bcPlaceInfo = [
       "Arrive ~1 hour before event for smoother entry",
       "Enterance: Gate E via Pacific Blvd",
     ],
+    img: [gettingThere, entryGate],
   },
   {
     section: "Bag Policy",
@@ -106,20 +109,27 @@ const bcPlaceInfo = [
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // 🔹 Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedImage(null);
+      }
+    };
+
+    if (selectedImage) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedImage]);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50 scroll-smooth">
-      {/* Mobile Menu Button */}
-      <div className="md:hidden sticky top-0 z-50 bg-white shadow p-4 flex justify-between items-center">
-        <h2 className="font-bold">Event Info</h2>
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-blue-600 font-semibold"
-        >
-          {menuOpen ? "Close" : "Menu"}
-        </button>
-      </div>
-
       {/* Sidebar */}
       <aside
         className={`md:w-64 bg-white shadow-lg md:h-screen md:sticky md:top-0 p-4 transition-all duration-300 ${
@@ -167,12 +177,10 @@ export default function App() {
               <div className="mb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {item.img.map((image, imgIndex) => (
-                    <a
+                    <div
                       key={imgIndex}
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block group"
+                      onClick={() => setSelectedImage(image)}
+                      className="cursor-pointer group"
                     >
                       <img
                         src={image}
@@ -180,7 +188,7 @@ export default function App() {
                         className="w-full h-auto rounded-lg shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-105 object-cover aspect-video"
                         loading="lazy"
                       />
-                    </a>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -191,7 +199,7 @@ export default function App() {
               ))}
             </ul>
             <p className="text-gray-700 text-sm mt-2">
-              To Know more please visit the{" "}
+              To know more please visit the{" "}
               <a
                 href={item.link}
                 target="_blank"
@@ -204,6 +212,26 @@ export default function App() {
           </div>
         ))}
       </main>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <img
+            src={selectedImage}
+            alt="Expanded view"
+            className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
+          />
+          <button
+            className="absolute top-5 right-5 text-white text-3xl"
+            onClick={() => setSelectedImage(null)}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }
